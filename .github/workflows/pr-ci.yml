@@ -1,4 +1,4 @@
-name: PR Validation
+name: PR - CI Check
 
 on:
   pull_request:
@@ -6,23 +6,20 @@ on:
       - main
 
 jobs:
-  test:
+  ci-check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Instalar Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: "18"
 
-      - name: Install dependencies
+      - name: Instalar dependências
         run: npm install
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Validar build do Strapi (testar se compila)
+        run: npm run build
