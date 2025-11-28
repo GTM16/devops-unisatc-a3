@@ -1,4 +1,4 @@
-name: PR - CI Check
+name: PR CI
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  ci-check:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,10 +16,13 @@ jobs:
       - name: Instalar Node
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '18'
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Validar build do Strapi (testar se compila)
-        run: npm run build
+      - name: Instalar Playwright
+        run: npx playwright install --with-deps
+
+      - name: Rodar testes
+        run: npx playwright test

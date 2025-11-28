@@ -6,32 +6,32 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Login na Azure
-        uses: azure/login@v1
+      - name: Login no Azure
+        uses: azure/login@v2
         with:
           creds: |
             {
               "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
               "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
-              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
-              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
             }
 
       - name: Login no ACR
         run: |
           az acr login --name ${{ secrets.ACR_NAME }}
 
-      - name: Build da imagem Docker
+      - name: Build da imagem
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/strapi-a3:latest .
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/app:latest .
 
-      - name: Push da imagem para o ACR
+      - name: Push da imagem
         run: |
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/strapi-a3:latest
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/app:latest

@@ -1,4 +1,4 @@
-name: Deploy to Azure Container Instances
+name: Deploy ACI
 
 on:
   workflow_dispatch:
@@ -8,32 +8,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Login na Azure
-        uses: azure/login@v1
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Login no Azure
+        uses: azure/login@v2
         with:
           creds: |
             {
               "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
               "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
-              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
-              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
             }
 
-      - name: Criar Resource Group (caso não exista)
-        run: |
-          az group create \
-            --name a3-rg \
-            --location eastus
-
-      - name: Deploy no Azure Container Instances
+      - name: Criar Container Instance
         run: |
           az container create \
-            --resource-group a3-rg \
-            --name a3-strapi-container \
-            --image ${{ secrets.ACR_NAME }}.azurecr.io/strapi-a3:latest \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name app-a3-container \
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/app:latest \
             --cpu 1 \
             --memory 1 \
-            --ports 1337 \
-            --registry-login-server ${{ secrets.ACR_NAME }}.azurecr.io \
-            --registry-username $(az acr credential show --name ${{ secrets.ACR_NAME }} --query username -o tsv) \
-            --registry-password $(az acr credential show --name ${{ secrets.ACR_NAME }} --query passwords[0].value -o tsv)
+            --dns-name-label app-a3-dns-${{ github.run_id }} \
+            --ports 3000
